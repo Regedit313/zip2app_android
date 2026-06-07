@@ -99,7 +99,7 @@ No manual extraction is required.
 
 ---
 
-Updating Applications
+## Updating Applications
 
 To update an application:
 
