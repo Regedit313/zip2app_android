@@ -80,7 +80,7 @@ while true; do
     echo "zip2app_android"
     echo
     echo "1) Install apps from zip files"
-    echo "9) First-time Setup"
+    echo "9) First-time Setup / Update Setup"
     echo "0) Exit"
     echo
 
@@ -155,7 +155,7 @@ while true; do
         9)
             clear
 
-            echo "First-time Setup"
+            echo "First-time Setup / Update Setup"
             echo
 
             if [ ! -d "$HOME/storage/shared" ]; then
