@@ -1,6 +1,6 @@
-zip2app_android
+# zip2app_android
 
-What is zip2app?
+## What is zip2app?
 
 zip2app_android is a simple installer for Android Termux applications.
 
@@ -10,7 +10,7 @@ Once configured, most applications can be launched directly from the widget with
 
 ---
 
-Complete Installation
+## Complete Installation
 
 1. Install Termux
 
@@ -61,7 +61,7 @@ zip2app and future applications will appear in the widget menu.
 
 ---
 
-Installing Applications
+## Installing Applications
 
 Applications are installed directly from GitHub ZIP downloads.
 
@@ -116,7 +116,7 @@ The previous installation will automatically be replaced.
 
 ---
 
-Termux Widget
+## Termux Widget
 
 Applications installed through zip2app automatically create shortcuts for the Termux Widget.
 
@@ -128,17 +128,17 @@ The shortcut will then become available.
 
 ---
 
-Menu
+## Menu
 
 1) Install apps from zip files
 
-2) First-time Setup / Update Setup
+9) First-time Setup / Update Setup
 
-3) Exit
+0) Exit
 
 ---
 
-Automatic Maintenance
+## Automatic Maintenance
 
 Every time zip2app starts, it automatically:
 
@@ -154,7 +154,7 @@ zip2app_android/zip_files
 
 ---
 
-Credits
+## Credits
 
 Uses:
 
