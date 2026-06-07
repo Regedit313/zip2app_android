@@ -1,50 +1,51 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# Ensure storage is available before doing anything
 if [ ! -d "$HOME/storage/shared" ]; then
     echo "Setting up storage..."
     termux-setup-storage
 fi
 
-BOOTSTRAP_DIR="$HOME/storage/shared/zip2app_android"
-BOOTSTRAP_SCRIPT="$BOOTSTRAP_DIR/zip2app.sh"
-SHORTCUT_SCRIPT="$BOOTSTRAP_DIR/zip2app_termuxshortcut.sh"
+ROOT_DIR="$HOME/storage/shared"
+ROOT_SCRIPT="$ROOT_DIR/zip2app.sh"
+APP_DIR="$ROOT_DIR/zip2app_android"
+APP_SCRIPT="$APP_DIR/zip2app.sh"
+SHORTCUT_SCRIPT="$APP_DIR/zip2app_termuxshortcut.sh"
 
-# Bootstrap installation / repair
-if [ "$(realpath "$0")" != "$(realpath "$BOOTSTRAP_SCRIPT" 2>/dev/null)" ]; then
+CURRENT_SCRIPT="$(realpath "$0")"
+ROOT_SCRIPT_REAL="$(realpath "$ROOT_SCRIPT" 2>/dev/null)"
+APP_SCRIPT_REAL="$(realpath "$APP_SCRIPT" 2>/dev/null)"
 
-    mkdir -p "$BOOTSTRAP_DIR"
+mkdir -p "$APP_DIR"
+mkdir -p "$APP_DIR/zip_files"
 
-    # Keep zip_files only, remove everything else
-    find "$BOOTSTRAP_DIR" -mindepth 1 -maxdepth 1 ! -name zip_files -exec rm -rf {} +
+if [ "$CURRENT_SCRIPT" != "$ROOT_SCRIPT_REAL" ]; then
+    cp "$CURRENT_SCRIPT" "$ROOT_SCRIPT"
+fi
 
-    mkdir -p "$BOOTSTRAP_DIR/zip_files"
-    mkdir -p "$BOOTSTRAP_DIR/tmp_extract"
+if [ "$CURRENT_SCRIPT" != "$APP_SCRIPT_REAL" ]; then
+    cp "$CURRENT_SCRIPT" "$APP_SCRIPT"
+fi
 
-    cp "$0" "$BOOTSTRAP_SCRIPT"
-    chmod +x "$BOOTSTRAP_SCRIPT"
+chmod +x "$ROOT_SCRIPT"
+chmod +x "$APP_SCRIPT"
 
-    cat > "$SHORTCUT_SCRIPT" << 'EOF'
+find "$APP_DIR" -mindepth 1 -maxdepth 1 \
+    ! -name zip_files \
+    ! -name zip2app.sh \
+    -exec rm -rf {} +
+
+find "$APP_DIR/zip_files" -mindepth 1 ! -iname "*.zip" -exec rm -rf {} +
+
+cat > "$SHORTCUT_SCRIPT" << 'EOF'
 #!/data/data/com.termux/files/usr/bin/bash
 
 bash ~/storage/shared/zip2app_android/zip2app.sh
 EOF
 
-    chmod +x "$SHORTCUT_SCRIPT"
+chmod +x "$SHORTCUT_SCRIPT"
 
-    echo
-    echo "zip2app_android installed."
-    echo
+cd "$APP_DIR" || exit 1
 
-    exec bash "$BOOTSTRAP_SCRIPT"
-fi
-
-cd "$(dirname "$0")" || exit 1
-
-mkdir -p zip_files
-mkdir -p tmp_extract
-
-# Always refresh shortcuts when zip2app starts
 update_shortcuts() {
     mkdir -p ~/.shortcuts
 
@@ -61,7 +62,16 @@ update_shortcuts() {
     done
 }
 
-update_shortcuts >/dev/null 2>&1
+echo
+echo "Updating Termux shortcuts..."
+echo
+
+update_shortcuts
+
+echo
+echo "Shortcuts updated."
+echo
+read -p "Press Enter to continue..."
 
 while true; do
     clear
@@ -84,10 +94,9 @@ while true; do
             echo "Install apps from zip files"
             echo
 
-            # Keep only zip files
-            find zip_files/ -mindepth 1 ! -iname "*.zip" -exec rm -rf {} +
-
             found_zip=0
+
+            mkdir -p tmp_extract
 
             for zipfile in zip_files/*.zip; do
                 [ -f "$zipfile" ] || continue
@@ -96,7 +105,9 @@ while true; do
 
                 echo "Processing: $(basename "$zipfile")"
 
-                rm -rf tmp_extract/*
+                rm -rf tmp_extract
+                mkdir -p tmp_extract
+
                 unzip -q "$zipfile" -d tmp_extract
 
                 app_dir="$(find tmp_extract/ -type d -name "*_android" | head -n 1)"
@@ -112,8 +123,8 @@ while true; do
 
                 echo "Found app: $app_name"
 
-                rm -rf ~/storage/shared/"$app_name"
-                cp -r "$app_dir" ~/storage/shared/
+                rm -rf "$ROOT_DIR/$app_name"
+                cp -r "$app_dir" "$ROOT_DIR/"
 
                 rm -f "$zipfile"
 
@@ -121,7 +132,7 @@ while true; do
                 echo
             done
 
-            rm -rf tmp_extract/*
+            rm -rf tmp_extract
 
             if [ "$found_zip" = "0" ]; then
                 echo "No zip files found in zip_files folder."
@@ -164,18 +175,8 @@ while true; do
             pkg install unzip -y
 
             mkdir -p zip_files
-            mkdir -p tmp_extract
 
-            if [ ! -f zip2app_termuxshortcut.sh ]; then
-                cat > zip2app_termuxshortcut.sh << 'EOF'
-#!/data/data/com.termux/files/usr/bin/bash
-
-bash ~/storage/shared/zip2app_android/zip2app.sh
-EOF
-                chmod +x zip2app_termuxshortcut.sh
-            fi
-
-            update_shortcuts >/dev/null 2>&1
+            update_shortcuts
 
             echo
             echo "Setup completed."
