@@ -67,6 +67,26 @@ while true; do
                 echo
             fi
 
+            echo "Updating Termux shortcuts..."
+            echo
+
+            mkdir -p ~/.shortcuts
+
+            rm -f ~/.shortcuts/*_android.sh
+
+            find ~/storage/shared/*_android/ -type f -name "*_termuxshortcut.sh" | while read -r file; do
+                project="$(basename "$(dirname "$file")")"
+                name="$project.sh"
+
+                cp "$file" ~/.shortcuts/"$name"
+                chmod +x ~/.shortcuts/"$name"
+
+                echo "Installed shortcut: $name"
+            done
+
+            echo
+            echo "Shortcuts updated."
+            echo
             echo "Done."
             echo
             read -p "Press Enter to continue..."
