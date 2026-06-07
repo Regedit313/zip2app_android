@@ -59,6 +59,8 @@ Add the Termux Widget to your Android home screen.
 
 zip2app and future applications will appear in the widget menu.
 
+From this point on, most applications can be launched directly from the widget without manually entering commands in Termux.
+
 ---
 
 ## Installing Applications
